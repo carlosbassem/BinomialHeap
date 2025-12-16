@@ -94,7 +94,7 @@ HeapVisualizer::HeapVisualizer(QWidget* parent)
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     
     // Set scene size
-    scene->setSceneRect(-500, -300, 3000, 1500);
+    scene->setSceneRect(SCENE_MIN_X, SCENE_MIN_Y, SCENE_WIDTH, SCENE_HEIGHT);
     
     // Timer for highlight
     highlightTimer = new QTimer(this);
@@ -144,7 +144,7 @@ void HeapVisualizer::calculateSubtreeWidth(BinomialNode<int>* node, qreal& width
     }
     
     if (childCount == 0) {
-        width = 80; // Minimum width for leaf nodes
+        width = MIN_NODE_WIDTH; // Minimum width for leaf nodes
         return;
     }
     
@@ -158,7 +158,7 @@ void HeapVisualizer::calculateSubtreeWidth(BinomialNode<int>* node, qreal& width
         child = child->getSibling();
     }
     
-    width = std::max(totalWidth, 80.0);
+    width = std::max(totalWidth, MIN_NODE_WIDTH);
 }
 
 void HeapVisualizer::calculateLayout(BinomialNode<int>* root, qreal& currentX, qreal y,
@@ -180,7 +180,7 @@ void HeapVisualizer::calculateLayout(BinomialNode<int>* root, qreal& currentX, q
     // Layout children
     if (root->getChild()) {
         qreal childX = currentX;
-        qreal childY = y + 120;
+        qreal childY = y + VERTICAL_SPACING;
         
         BinomialNode<int>* child = root->getChild();
         while (child) {
@@ -209,7 +209,7 @@ void HeapVisualizer::updateVisualization(bool animate) {
     BinomialNode<int>* root = head;
     while (root) {
         calculateLayout(root, currentX, rootY, positions);
-        currentX += 100; // Gap between trees
+        currentX += TREE_GAP; // Gap between trees
         root = root->getSibling();
     }
     
@@ -301,8 +301,8 @@ void HeapVisualizer::highlightMinNode() {
                 item->setHighlighted(true);
                 currentHighlightedNode = item;
                 
-                // Start timer to remove highlight after 2 seconds
-                highlightTimer->start(2000);
+                // Start timer to remove highlight after defined duration
+                highlightTimer->start(HIGHLIGHT_DURATION_MS);
                 break;
             }
         }

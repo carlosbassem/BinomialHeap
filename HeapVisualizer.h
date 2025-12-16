@@ -55,6 +55,16 @@ public:
     void updateVisualization(bool animate = true);
     void highlightMinNode();
     
+    // Layout and timing constants
+    static constexpr int HIGHLIGHT_DURATION_MS = 2000;  // 2 seconds
+    static constexpr qreal MIN_NODE_WIDTH = 80.0;
+    static constexpr qreal VERTICAL_SPACING = 120.0;
+    static constexpr qreal TREE_GAP = 100.0;
+    static constexpr qreal SCENE_MIN_X = -500.0;
+    static constexpr qreal SCENE_MIN_Y = -300.0;
+    static constexpr qreal SCENE_WIDTH = 3000.0;
+    static constexpr qreal SCENE_HEIGHT = 1500.0;
+    
 signals:
     void nodeRightClicked(int value);
     

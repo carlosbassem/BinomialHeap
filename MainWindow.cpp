@@ -146,7 +146,10 @@ void MainWindow::onDisplayMin() {
     try {
         int minValue = heap->getMin();
         visualizer->highlightMinNode();
-        showMessage("Minimum Value", QString("Minimum value is: %1\n(Highlighted in red for 2 seconds)").arg(minValue));
+        int duration = HeapVisualizer::HIGHLIGHT_DURATION_MS / 1000; // Convert to seconds
+        showMessage("Minimum Value", 
+                   QString("Minimum value is: %1\n(Highlighted in red for %2 seconds)")
+                   .arg(minValue).arg(duration));
     } catch (const std::exception& e) {
         showMessage("Error", e.what(), true);
     }
