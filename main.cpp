@@ -1,3 +1,17 @@
+#include <QApplication>
+#include "MainWindow.h"
+
+int main(int argc, char* argv[]) {
+    QApplication app(argc, argv);
+    
+    MainWindow window;
+    window.show();
+    
+    return app.exec();
+}
+
+// Keep the old CLI code for reference but don't use it
+#if 0
 #include <iostream>
 #include "binomial_heap.hpp"
 #include <vector>
@@ -151,7 +165,8 @@ void runComplexityTests() {
     }
 }
 
-int main() {
+// Old CLI main function (disabled)
+void old_main() {
     BinomialHeap<int> heap;
     int choice, value, newValue;
 
@@ -262,3 +277,4 @@ int main() {
     }
 
 }
+#endif

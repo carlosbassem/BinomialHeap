@@ -37,6 +37,10 @@ public:
 		head = unionHeap(head, other.head);
 		other.head = nullptr; // avoid double free
 	}
+	
+	// Public getter for visualization
+	BinomialNode<B>* getHead() const { return head; }
+	
 protected:
 	static BinomialNode<B>* unionHeap(BinomialNode<B>* heapA, BinomialNode<B>* heapB);
 	static BinomialNode<B>* mergeHeap(BinomialNode<B>* heapA, BinomialNode<B>* heapB);
@@ -58,6 +62,13 @@ public:
 	void addChild(BinomialNode<B>* child);
 	BinomialNode<B>* find(B v);
 	//void addTo(BinomialHeap<B>* other);
+	
+	// Public getters for visualization
+	B getValue() const { return value; }
+	BinomialNode<B>* getSibling() const { return sibling; }
+	BinomialNode<B>* getChild() const { return child; }
+	BinomialNode<B>* getParent() const { return parent; }
+	int getOrder() const { return order; }
 
 private:
 	B value;
