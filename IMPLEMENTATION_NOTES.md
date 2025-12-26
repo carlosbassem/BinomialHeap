@@ -237,7 +237,7 @@ target_link_libraries(${PROJECT_NAME} Qt6::Core Qt6::Widgets)
 1. **No undo**: Operations cannot be reversed
 2. **Fixed layout**: Cannot manually drag nodes
 3. **No zoom**: View size is fixed (scrollable but not zoomable)
-4. **Integer only**: Template instantiated only for `int` type
+4. **Limited types**: Template instantiated for `int` and `char` types only
 5. **Single heap**: Cannot compare multiple heaps side-by-side
 
 ## Conclusion

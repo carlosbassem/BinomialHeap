@@ -50,35 +50,17 @@ This document describes the implementation of dual type support (char and int) f
   - Right-click node deletion
 
 ### 5. Updated Main Entry Point (`main.cpp`)
-- Created `MainWindowT<T>`: Template version of MainWindow
-- Adapts all UI elements to the selected type:
-  - Input field placeholders change based on type
-  - Validation adapts to type requirements
-  - Error messages reference the correct type name
-  - Window title shows selected type
-- All operations work with both types:
-  - Insert
-  - Extract Min
-  - Display Min
-  - Decrease Key
-  - Delete Value
-  - Clear All
-  - Right-click node deletion
-
-### 5. Updated Main Entry Point (`main.cpp`)
 - Shows type selection dialog first
-- Creates appropriate templated window based on selection
-- Proper memory management (delete on exit)
+- Creates appropriate templated window based on selection:
+  - `MainWindow` for integer type
+  - `MainWindowChar` for character type
+- Proper memory management with smart pointers
 
-### 6. Template Instantiations (`TemplateInstantiations.cpp`)
-- Explicit instantiations of template classes for both int and char
-- Required for Qt's MOC (Meta-Object Compiler) to work with template classes
-
-### 7. Build Configuration (`CMakeLists.txt`)
+### 6. Build Configuration (`CMakeLists.txt`)
 - Added all new source and header files
 - Maintained existing build structure
 
-### 8. Documentation Updates
+### 7. Documentation Updates
 - **BUILD.md**: Updated to reflect new architecture and file structure
 - **USAGE.md**: Updated to describe startup type selection workflow
 - **README.md**: Enhanced with feature overview and technology stack
