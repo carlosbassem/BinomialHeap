@@ -10,10 +10,37 @@ template <typename B>
 BinomialHeap<B>::BinomialHeap(const BinomialHeap<B>& other) {
 	*this = other;
 }
-//template <typename B>
-//BinomialHeap<B>& BinomialHeap<B>::operator=(const BinomialHeap<B>& other) {
-//	
-//}
+template <typename B>
+BinomialHeap<B>& BinomialHeap<B>::operator=(const BinomialHeap<B>& other) {
+	if (this != &other) {
+		clear();
+
+		if (other.head) {
+			head = copyHeap(other.head, nullptr);
+		}
+		else {
+			head = nullptr;
+		}
+	}
+	return *this;
+}
+template <typename B>
+BinomialNode<B>* BinomialHeap<B>::copyHeap(BinomialNode<B>* node, BinomialNode<B>* parent) {
+	if (!node) return nullptr;
+
+	BinomialNode<B>* newNode = new BinomialNode<B>(node->value, parent);
+	newNode->order = node->order;
+
+	if (node->child) {
+		newNode->child = copyHeap(node->child, newNode);
+	}
+
+	if (node->sibling) {
+		newNode->sibling = copyHeap(node->sibling, parent);
+	}
+
+	return newNode;
+}
 template <typename B>
 BinomialHeap<B>::~BinomialHeap() {
 	clear();
@@ -360,9 +387,6 @@ void BinomialHeap<B>::displayHeap(const BinomialHeap<B>* heap) {
 
 template class BinomialNode<int>;
 template class BinomialHeap<int>;
-
-template class BinomialNode<float>;
-template class BinomialHeap<float>;
 
 template class BinomialNode<char>;
 template class BinomialHeap<char>;
