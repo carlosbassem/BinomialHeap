@@ -10,8 +10,6 @@
 #include <QLineEdit>
 #include <QLabel>
 #include <QMessageBox>
-#include <QRadioButton>
-#include <QButtonGroup>
 #include "HeapVisualizer.h"
 #include "binomial_heap.hpp"
 
@@ -31,21 +29,12 @@ private slots:
     void onDeleteValue();
     void onClearHeap();
     void onNodeRightClicked(int value);
-    void onTypeChanged();
     
 private:
-    enum DataType {
-        INT_TYPE,
-        CHAR_TYPE
-    };
-    
     // UI Components
     HeapVisualizer* visualizer;
     
     // Control panel widgets
-    QRadioButton* intTypeRadio;
-    QRadioButton* charTypeRadio;
-    QButtonGroup* typeButtonGroup;
     QLineEdit* insertValueEdit;
     QLineEdit* decreaseOldValueEdit;
     QLineEdit* decreaseNewValueEdit;
@@ -59,16 +48,12 @@ private:
     QPushButton* clearButton;
     
     // Data
-    BinomialHeap<int>* intHeap;
-    BinomialHeap<char>* charHeap;
-    DataType currentType;
+    BinomialHeap<int>* heap;
     
     // UI Setup
     void setupUI();
     QWidget* createControlPanel();
     void showMessage(const QString& title, const QString& message, bool isError = false);
-    void switchHeapType(DataType newType);
-    void updatePlaceholders();
 };
 
 #endif // MAINWINDOW_H
