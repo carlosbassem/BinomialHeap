@@ -92,7 +92,6 @@ void MainWindow::onInsert() {
         heap->insert(value);
         visualizer->updateVisualization(true);
         insertValueEdit->clear();
-        showMessage("Success", QString("Inserted value: %1").arg(ValueConverter<int>::toString(value)));
     } catch (const std::exception& e) {
         showMessage("Error", e.what(), true);
     }
@@ -102,7 +101,6 @@ void MainWindow::onExtractMin() {
     try {
         int minValue = heap->extractMin();
         visualizer->updateVisualization(true);
-        showMessage("Success", QString("Extracted minimum value: %1").arg(ValueConverter<int>::toString(minValue)));
     } catch (const std::exception& e) {
         showMessage("Error", e.what(), true);
     }
@@ -112,10 +110,6 @@ void MainWindow::onDisplayMin() {
     try {
         int minValue = heap->getMin();
         visualizer->highlightMinNode();
-        int duration = HeapVisualizerT<int>::HIGHLIGHT_DURATION_MS / 1000;
-        showMessage("Minimum Value", 
-                   QString("Minimum value is: %1\n(Highlighted in red for %2 seconds)")
-                   .arg(ValueConverter<int>::toString(minValue)).arg(duration));
     } catch (const std::exception& e) {
         showMessage("Error", e.what(), true);
     }
@@ -157,7 +151,6 @@ void MainWindow::onDeleteValue() {
         heap->deleteKey(value);
         visualizer->updateVisualization(true);
         deleteValueEdit->clear();
-        showMessage("Success", QString("Deleted value: %1").arg(ValueConverter<int>::toString(value)));
     } catch (const std::exception& e) {
         showMessage("Error", e.what(), true);
     }
@@ -178,7 +171,6 @@ void MainWindow::onNodeRightClicked(int value) {
     try {
         heap->deleteKey(value);
         visualizer->updateVisualization(true);
-        showMessage("Success", QString("Deleted node with value: %1").arg(ValueConverter<int>::toString(value)));
     } catch (const std::exception& e) {
         showMessage("Error", e.what(), true);
     }
@@ -213,7 +205,6 @@ void MainWindowChar::onInsert() {
         heap->insert(value);
         visualizer->updateVisualization(true);
         insertValueEdit->clear();
-        showMessage("Success", QString("Inserted value: %1").arg(ValueConverter<char>::toString(value)));
     } catch (const std::exception& e) {
         showMessage("Error", e.what(), true);
     }
@@ -223,7 +214,6 @@ void MainWindowChar::onExtractMin() {
     try {
         char minValue = heap->extractMin();
         visualizer->updateVisualization(true);
-        showMessage("Success", QString("Extracted minimum value: %1").arg(ValueConverter<char>::toString(minValue)));
     } catch (const std::exception& e) {
         showMessage("Error", e.what(), true);
     }
@@ -233,10 +223,6 @@ void MainWindowChar::onDisplayMin() {
     try {
         char minValue = heap->getMin();
         visualizer->highlightMinNode();
-        int duration = HeapVisualizerT<char>::HIGHLIGHT_DURATION_MS / 1000;
-        showMessage("Minimum Value", 
-                   QString("Minimum value is: %1\n(Highlighted in red for %2 seconds)")
-                   .arg(ValueConverter<char>::toString(minValue)).arg(duration));
     } catch (const std::exception& e) {
         showMessage("Error", e.what(), true);
     }
@@ -278,7 +264,6 @@ void MainWindowChar::onDeleteValue() {
         heap->deleteKey(value);
         visualizer->updateVisualization(true);
         deleteValueEdit->clear();
-        showMessage("Success", QString("Deleted value: %1").arg(ValueConverter<char>::toString(value)));
     } catch (const std::exception& e) {
         showMessage("Error", e.what(), true);
     }
@@ -299,7 +284,6 @@ void MainWindowChar::onNodeRightClicked(char value) {
     try {
         heap->deleteKey(value);
         visualizer->updateVisualization(true);
-        showMessage("Success", QString("Deleted node with value: %1").arg(ValueConverter<char>::toString(value)));
     } catch (const std::exception& e) {
         showMessage("Error", e.what(), true);
     }
