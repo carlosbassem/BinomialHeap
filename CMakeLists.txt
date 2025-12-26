@@ -19,6 +19,7 @@ set(SOURCES
     HeapVisualizer.cpp
     TypeSelectionDialog.cpp
     HeapVisualizerTemplate.cpp
+    TemplateInstantiations.cpp
 )
 
 set(HEADERS
