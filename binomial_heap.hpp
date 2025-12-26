@@ -18,7 +18,7 @@ public:
 
 	BinomialHeap();
 	BinomialHeap(const BinomialHeap& other);
-	//BinomialHeap& operator=(const BinomialHeap& other);
+	BinomialHeap& operator=(const BinomialHeap& other);
 	~BinomialHeap();
 	void insert(B value);
 	B getMin();
@@ -37,6 +37,7 @@ public:
 		head = unionHeap(head, other.head);
 		other.head = nullptr; // avoid double free
 	}
+	BinomialNode<B>* copyHeap(BinomialNode<B>* node, BinomialNode<B>* parent);
 	
 	// Public getter for visualization
 	BinomialNode<B>* getHead() const { return head; }
@@ -61,7 +62,6 @@ public:
 	void deleteNode(BinomialNode<B>* node);
 	void addChild(BinomialNode<B>* child);
 	BinomialNode<B>* find(B v);
-	//void addTo(BinomialHeap<B>* other);
 	
 	// Public getters for visualization
 	B getValue() const { return value; }
