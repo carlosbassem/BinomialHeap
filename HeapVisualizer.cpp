@@ -6,50 +6,69 @@
 #include <QDebug>
 #include <cmath>
 
+
 // NodeItem implementation
-NodeItem::NodeItem(int value, qreal x, qreal y, qreal radius)
-    : QGraphicsEllipseItem(x - radius, y - radius, radius * 2, radius * 2), 
-      intNodeValue(value), charNodeValue('\0'), isInt(true) {
-    initialize(QString::number(value), x, y, radius);
-}
+NodeItem::NodeItem(int value, qreal x, qreal y, qreal radius) : QGraphicsEllipseItem(x - radius, y - radius, radius * 2, radius * 2), nodeValue(value) {
 
-NodeItem::NodeItem(char value, qreal x, qreal y, qreal radius)
-    : QGraphicsEllipseItem(x - radius, y - radius, radius * 2, radius * 2), 
-      intNodeValue(0), charNodeValue(value), isInt(false) {
-    initialize(QString(value), x, y, radius);
-}
-
-void NodeItem::initialize(const QString& displayText, qreal x, qreal y, qreal radius) {
     // Set node color - light blue
     setBrush(QBrush(QColor(173, 216, 230)));
     normalPen = QPen(Qt::black, 2);
     highlightPen = QPen(Qt::red, 4);
     setPen(normalPen);
-    
+
     // Add text for value
-    textItem = new QGraphicsTextItem(displayText, this);
+    textItem = new QGraphicsTextItem(QString::number(value), this);
     QFont font = textItem->font();
     font.setPointSize(12);
     font.setBold(true);
     textItem->setFont(font);
-    
-    // Center text within the ellipse
+
+    // Center text inside the ellipse using local coordinates
+    QRectF ellipseRect = rect();          // local rect of ellipse
     QRectF textRect = textItem->boundingRect();
-    textItem->setPos(radius - textRect.width() / 2, radius - textRect.height() / 2);
-}
+
+    textItem->setPos(
+        ellipseRect.center().x() - textRect.width() / 2,
+        ellipseRect.center().y() - textRect.height() / 2);
+};
 
 void NodeItem::setHighlighted(bool highlight) {
     setPen(highlight ? highlightPen : normalPen);
 }
 
+static constexpr qreal NODE_RADIUS = 25.0; // must match NodeItem radius
+
+
 // ArrowItem implementation
 ArrowItem::ArrowItem(QPointF start, QPointF end, bool doubleArrow)
     : QGraphicsLineItem(QLineF(start, end)), isDoubleArrow(doubleArrow) {
+    QLineF centerLine(start, end);
+
+    if (centerLine.length() > 2 * NODE_RADIUS) {
+        QPointF unit = (end - start) / centerLine.length();
+        QPointF newStart = start + unit * NODE_RADIUS;
+        QPointF newEnd = end - unit * NODE_RADIUS;
+        setLine(QLineF(newStart, newEnd));
+    }
+    else {
+        setLine(centerLine);
+    }
+
     setPen(QPen(Qt::black, 2));
 }
 
 void ArrowItem::updatePosition(QPointF start, QPointF end) {
-    setLine(QLineF(start, end));
+    QLineF centerLine(start, end);
+
+    if (centerLine.length() > 2 * NODE_RADIUS) {
+        QPointF unit = (end - start) / centerLine.length();
+        QPointF newStart = start + unit * NODE_RADIUS;
+        QPointF newEnd = end - unit * NODE_RADIUS;
+        setLine(QLineF(newStart, newEnd));
+    }
+    else {
+        setLine(centerLine);
+    }
 }
 
 QPolygonF ArrowItem::createArrowHead(QPointF start, QPointF end) {
@@ -91,8 +110,7 @@ void ArrowItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
 
 // HeapVisualizer implementation
 HeapVisualizer::HeapVisualizer(QWidget* parent)
-    : QGraphicsView(parent), intHeap(nullptr), charHeap(nullptr), 
-      currentHeapType(INT_HEAP), currentHighlightedNode(nullptr) {
+    : QGraphicsView(parent), binomialHeap(nullptr), currentHighlightedNode(nullptr) {
     
     scene = new QGraphicsScene(this);
     setScene(scene);
@@ -121,16 +139,7 @@ HeapVisualizer::~HeapVisualizer() {
 }
 
 void HeapVisualizer::setHeap(BinomialHeap<int>* heap) {
-    intHeap = heap;
-    charHeap = nullptr;
-    currentHeapType = INT_HEAP;
-    updateVisualization(false);
-}
-
-void HeapVisualizer::setHeap(BinomialHeap<char>* heap) {
-    charHeap = heap;
-    intHeap = nullptr;
-    currentHeapType = CHAR_HEAP;
+    binomialHeap = heap;
     updateVisualization(false);
 }
 
@@ -147,8 +156,7 @@ void HeapVisualizer::clearScene() {
     arrowItems.clear();
 }
 
-template<typename T>
-void HeapVisualizer::calculateSubtreeWidthT(BinomialNode<T>* node, qreal& width) {
+void HeapVisualizer::calculateSubtreeWidth(BinomialNode<int>* node, qreal& width) {
     if (!node) {
         width = 0;
         return;
@@ -156,7 +164,7 @@ void HeapVisualizer::calculateSubtreeWidthT(BinomialNode<T>* node, qreal& width)
     
     // Count children
     int childCount = 0;
-    BinomialNode<T>* child = node->getChild();
+    BinomialNode<int>* child = node->getChild();
     while (child) {
         childCount++;
         child = child->getSibling();
@@ -172,7 +180,7 @@ void HeapVisualizer::calculateSubtreeWidthT(BinomialNode<T>* node, qreal& width)
     child = node->getChild();
     while (child) {
         qreal childWidth = 0;
-        calculateSubtreeWidthT(child, childWidth);
+        calculateSubtreeWidth(child, childWidth);
         totalWidth += childWidth;
         child = child->getSibling();
     }
@@ -180,13 +188,12 @@ void HeapVisualizer::calculateSubtreeWidthT(BinomialNode<T>* node, qreal& width)
     width = std::max(totalWidth, MIN_NODE_WIDTH);
 }
 
-template<typename T>
-void HeapVisualizer::calculateLayoutT(BinomialNode<T>* root, qreal& currentX, qreal y,
-                                     QMap<void*, NodePosition>& positions) {
+void HeapVisualizer::calculateLayout(BinomialNode<int>* root, qreal& currentX, qreal y,
+                                     QMap<BinomialNode<int>*, NodePosition>& positions) {
     if (!root) return;
     
     qreal subtreeWidth = 0;
-    calculateSubtreeWidthT(root, subtreeWidth);
+    calculateSubtreeWidth(root, subtreeWidth);
     
     // Position root at center of its subtree
     qreal rootX = currentX + subtreeWidth / 2;
@@ -202,9 +209,9 @@ void HeapVisualizer::calculateLayoutT(BinomialNode<T>* root, qreal& currentX, qr
         qreal childX = currentX;
         qreal childY = y + VERTICAL_SPACING;
         
-        BinomialNode<T>* child = root->getChild();
+        BinomialNode<int>* child = root->getChild();
         while (child) {
-            calculateLayoutT(child, childX, childY, positions);
+            calculateLayout(child, childX, childY, positions);
             child = child->getSibling();
         }
     }
@@ -213,69 +220,102 @@ void HeapVisualizer::calculateLayoutT(BinomialNode<T>* root, qreal& currentX, qr
 }
 
 void HeapVisualizer::updateVisualization(bool animate) {
+    if (!binomialHeap) return;
+    
     clearScene();
     
-    if (currentHeapType == INT_HEAP && intHeap) {
-        BinomialNode<int>* head = intHeap->getHead();
-        if (!head) return;
-        
-        // Calculate positions for all nodes
-        QMap<void*, NodePosition> positions;
-        qreal currentX = 50;
-        qreal rootY = 50;
-        
-        // Process each binomial tree root
-        BinomialNode<int>* root = head;
-        while (root) {
-            calculateLayoutT(root, currentX, rootY, positions);
-            currentX += TREE_GAP; // Gap between trees
-            root = root->getSibling();
+    BinomialNode<int>* head = binomialHeap->getHead();
+    if (!head) return;
+    
+    // Calculate positions for all nodes
+    QMap<BinomialNode<int>*, NodePosition> positions;
+    qreal currentX = 50;
+    qreal rootY = 50;
+    
+    // Process each binomial tree root
+    BinomialNode<int>* root = head;
+    while (root) {
+        calculateLayout(root, currentX, rootY, positions);
+        currentX += TREE_GAP; // Gap between trees
+        root = root->getSibling();
+    }
+    
+    // Draw all nodes
+    for (auto it = positions.begin(); it != positions.end(); ++it) {
+        drawNode(it.key(), it.value(), animate);
+    }
+    // ---- Draw head pointer ----
+    if (head && positions.contains(head)) {
+        NodePosition headPos = positions[head];
+
+        // Text: "head"
+        QGraphicsTextItem* headLabel = scene->addText("head");
+        QFont font = headLabel->font();
+        font.setBold(true);
+        font.setPointSize(12);
+        headLabel->setFont(font);
+
+        QRectF textRect = headLabel->boundingRect();
+
+        // Position text to the left of first root
+        QPointF textPos(
+            headPos.x - NODE_RADIUS * 2 - textRect.width() - 20,
+            headPos.y - textRect.height() / 2
+        );
+        headLabel->setPos(textPos);
+
+        // Arrow: head --> first root
+        QPointF arrowStart(
+            textPos.x() + textRect.width() + 5,
+            headPos.y
+        );
+
+        QPointF arrowEnd(
+            headPos.x - NODE_RADIUS,
+            headPos.y
+        );
+
+        ArrowItem* headArrow = new ArrowItem(arrowStart, arrowEnd, false);
+        scene->addItem(headArrow);
+        arrowItems.append(headArrow);
+    }
+
+    // ---- Draw order labels (B0, B1, ...) above each root ----
+    BinomialNode<int>* rootNode = head;
+
+    while (rootNode) {
+        if (positions.contains(rootNode)) {
+            NodePosition pos = positions[rootNode];
+
+            QString labelText = QString("B%1").arg(rootNode->getOrder());
+
+            QGraphicsTextItem* label = scene->addText(labelText);
+            QFont font = label->font();
+            font.setBold(true);
+            font.setPointSize(12);
+            label->setFont(font);
+
+            QRectF textRect = label->boundingRect();
+
+            // Position label above root node
+            label->setPos(
+                pos.x - textRect.width() / 2,
+                pos.y - NODE_RADIUS * 2 - 10
+            );
         }
-        
-        // Draw all nodes
-        for (auto it = positions.begin(); it != positions.end(); ++it) {
-            drawNodeT(static_cast<BinomialNode<int>*>(it.key()), it.value(), animate);
-        }
-        
-        // Draw connections
-        root = head;
-        while (root) {
-            drawConnectionsT(root, positions);
-            root = root->getSibling();
-        }
-    } else if (currentHeapType == CHAR_HEAP && charHeap) {
-        BinomialNode<char>* head = charHeap->getHead();
-        if (!head) return;
-        
-        // Calculate positions for all nodes
-        QMap<void*, NodePosition> positions;
-        qreal currentX = 50;
-        qreal rootY = 50;
-        
-        // Process each binomial tree root
-        BinomialNode<char>* root = head;
-        while (root) {
-            calculateLayoutT(root, currentX, rootY, positions);
-            currentX += TREE_GAP; // Gap between trees
-            root = root->getSibling();
-        }
-        
-        // Draw all nodes
-        for (auto it = positions.begin(); it != positions.end(); ++it) {
-            drawNodeT(static_cast<BinomialNode<char>*>(it.key()), it.value(), animate);
-        }
-        
-        // Draw connections
-        root = head;
-        while (root) {
-            drawConnectionsT(root, positions);
-            root = root->getSibling();
-        }
+
+        rootNode = rootNode->getSibling();
+    }
+
+    // Draw connections
+    root = head;
+    while (root) {
+        drawConnections(root, positions);
+        root = root->getSibling();
     }
 }
 
-template<typename T>
-void HeapVisualizer::drawNodeT(BinomialNode<T>* node, const NodePosition& pos, bool animate) {
+void HeapVisualizer::drawNode(BinomialNode<int>* node, const NodePosition& pos, bool animate) {
     if (!node) return;
     
     NodeItem* item = new NodeItem(node->getValue(), pos.x, pos.y);
@@ -287,71 +327,83 @@ void HeapVisualizer::drawNodeT(BinomialNode<T>* node, const NodePosition& pos, b
     }
 }
 
-template<typename T>
-void HeapVisualizer::drawConnectionsT(BinomialNode<T>* node,
-                                     const QMap<void*, NodePosition>& positions) {
+void HeapVisualizer::drawConnections(
+    BinomialNode<int>* node,
+    const QMap<BinomialNode<int>*, NodePosition>& positions) {
+
     if (!node) return;
-    
+
     NodePosition parentPos = positions[node];
-    
-    // Draw parent-child connections (double arrows)
-    BinomialNode<T>* child = node->getChild();
+
+    // ---- Parent -> children ----
+    BinomialNode<int>* child = node->getChild();
+    bool firstChild = true;
+
     while (child) {
         if (positions.contains(child)) {
             NodePosition childPos = positions[child];
-            
-            ArrowItem* arrow = new ArrowItem(
-                QPointF(parentPos.x, parentPos.y),
-                QPointF(childPos.x, childPos.y),
-                true  // double arrow for parent-child
-            );
+
+            ArrowItem* arrow;
+
+            if (firstChild) {
+                // Bidirectional for first child
+                arrow = new ArrowItem(
+                    QPointF(parentPos.x, parentPos.y),
+                    QPointF(childPos.x, childPos.y),
+                    true
+                );
+            }
+            else {
+                // Other children point TO parent
+                arrow = new ArrowItem(
+                    QPointF(childPos.x, childPos.y),
+                    QPointF(parentPos.x, parentPos.y),
+                    false
+                );
+            }
+
+
             scene->addItem(arrow);
             arrowItems.append(arrow);
-            
-            // Recursively draw connections for child
-            drawConnectionsT(child, positions);
+
+            // Recurse
+            drawConnections(child, positions);
+
+            firstChild = false;
         }
         child = child->getSibling();
     }
-    
-    // Draw sibling connections (single arrow)
-    BinomialNode<T>* sibling = node->getSibling();
+
+    // ---- Sibling -> sibling (same level) ----
+    // ---- Immediate sibling only ----
+    BinomialNode<int>* sibling = node->getSibling();
     if (sibling && positions.contains(sibling)) {
-        NodePosition siblingPos = positions[sibling];
-        
-        // Only draw sibling arrows at root level (avoid duplicates in subtrees)
-        if (!node->getParent()) {
-            ArrowItem* arrow = new ArrowItem(
-                QPointF(parentPos.x, parentPos.y),
-                QPointF(siblingPos.x, siblingPos.y),
-                false  // single arrow for siblings
-            );
-            scene->addItem(arrow);
-            arrowItems.append(arrow);
-        }
+        NodePosition pos1 = positions[node];
+        NodePosition pos2 = positions[sibling];
+
+        ArrowItem* sibArrow = new ArrowItem(
+            QPointF(pos1.x, pos1.y),
+            QPointF(pos2.x, pos2.y),
+            false
+        );
+
+        scene->addItem(sibArrow);
+        arrowItems.append(sibArrow);
     }
+
 }
 
+
 void HeapVisualizer::highlightMinNode() {
+    if (!binomialHeap) return;
+    
     try {
+        int minValue = binomialHeap->getMin();
+        
         // Find the node item with min value
         for (auto it = nodeItemMap.begin(); it != nodeItemMap.end(); ++it) {
             NodeItem* item = it.value();
-            bool isMinNode = false;
-            
-            if (currentHeapType == INT_HEAP && intHeap && item->isIntType()) {
-                int minValue = intHeap->getMin();
-                if (item->getIntValue() == minValue) {
-                    isMinNode = true;
-                }
-            } else if (currentHeapType == CHAR_HEAP && charHeap && !item->isIntType()) {
-                char minValue = charHeap->getMin();
-                if (item->getCharValue() == minValue) {
-                    isMinNode = true;
-                }
-            }
-            
-            if (isMinNode) {
+            if (item->getValue() == minValue) {
                 // Clear previous highlight
                 if (currentHighlightedNode) {
                     currentHighlightedNode->setHighlighted(false);
@@ -400,23 +452,9 @@ void HeapVisualizer::contextMenuEvent(QContextMenuEvent* event) {
         
         QAction* selected = menu.exec(event->globalPos());
         if (selected == deleteAction) {
-            if (nodeItem->isIntType()) {
-                emit nodeRightClicked(nodeItem->getIntValue());
-            } else {
-                emit nodeRightClicked(static_cast<int>(nodeItem->getCharValue()));
-            }
+            emit nodeRightClicked(nodeItem->getValue());
         }
     } else {
         QGraphicsView::contextMenuEvent(event);
     }
 }
-
-// Explicit template instantiations
-template void HeapVisualizer::calculateSubtreeWidthT<int>(BinomialNode<int>*, qreal&);
-template void HeapVisualizer::calculateSubtreeWidthT<char>(BinomialNode<char>*, qreal&);
-template void HeapVisualizer::calculateLayoutT<int>(BinomialNode<int>*, qreal&, qreal, QMap<void*, NodePosition>&);
-template void HeapVisualizer::calculateLayoutT<char>(BinomialNode<char>*, qreal&, qreal, QMap<void*, NodePosition>&);
-template void HeapVisualizer::drawNodeT<int>(BinomialNode<int>*, const NodePosition&, bool);
-template void HeapVisualizer::drawNodeT<char>(BinomialNode<char>*, const NodePosition&, bool);
-template void HeapVisualizer::drawConnectionsT<int>(BinomialNode<int>*, const QMap<void*, NodePosition>&);
-template void HeapVisualizer::drawConnectionsT<char>(BinomialNode<char>*, const QMap<void*, NodePosition>&);
