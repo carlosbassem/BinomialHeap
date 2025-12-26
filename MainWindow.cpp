@@ -3,16 +3,18 @@
 #include <QDebug>
 
 MainWindow::MainWindow(QWidget* parent)
-    : QMainWindow(parent), heap(nullptr) {
+    : QMainWindow(parent), intHeap(nullptr), charHeap(nullptr), currentType(INT_TYPE) {
     
-    heap = new BinomialHeap<int>();
+    intHeap = new BinomialHeap<int>();
+    charHeap = new BinomialHeap<char>();
     setupUI();
-    setWindowTitle("Binomial Heap Visualizer");
+    setWindowTitle("Binomial Heap Visualizer - Int/Char Support");
     resize(1400, 800);
 }
 
 MainWindow::~MainWindow() {
-    delete heap;
+    delete intHeap;
+    delete charHeap;
 }
 
 void MainWindow::setupUI() {
@@ -21,7 +23,7 @@ void MainWindow::setupUI() {
     
     // Create visualizer
     visualizer = new HeapVisualizer(this);
-    visualizer->setHeap(heap);
+    visualizer->setHeap(intHeap);
     
     // Create control panel
     QWidget* controlPanel = createControlPanel();
@@ -48,6 +50,28 @@ QWidget* MainWindow::createControlPanel() {
     // Group box for controls
     QGroupBox* controlGroup = new QGroupBox("Heap Operations", panel);
     QVBoxLayout* groupLayout = new QVBoxLayout(controlGroup);
+    
+    // Data Type Selection
+    QLabel* typeLabel = new QLabel("Data Type:", controlGroup);
+    QFont labelFont = typeLabel->font();
+    labelFont.setBold(true);
+    typeLabel->setFont(labelFont);
+    
+    typeButtonGroup = new QButtonGroup(controlGroup);
+    intTypeRadio = new QRadioButton("Integer", controlGroup);
+    charTypeRadio = new QRadioButton("Character", controlGroup);
+    intTypeRadio->setChecked(true);
+    
+    typeButtonGroup->addButton(intTypeRadio, INT_TYPE);
+    typeButtonGroup->addButton(charTypeRadio, CHAR_TYPE);
+    
+    connect(intTypeRadio, &QRadioButton::toggled, this, &MainWindow::onTypeChanged);
+    connect(charTypeRadio, &QRadioButton::toggled, this, &MainWindow::onTypeChanged);
+    
+    groupLayout->addWidget(typeLabel);
+    groupLayout->addWidget(intTypeRadio);
+    groupLayout->addWidget(charTypeRadio);
+    groupLayout->addSpacing(15);
     
     // Insert operation
     QLabel* insertLabel = new QLabel("Insert Value:", controlGroup);
@@ -114,19 +138,39 @@ QWidget* MainWindow::createControlPanel() {
 }
 
 void MainWindow::onInsert() {
-    bool ok;
-    int value = insertValueEdit->text().toInt(&ok);
+    QString text = insertValueEdit->text().trimmed();
     
-    if (!ok) {
-        showMessage("Error", "Please enter a valid integer value.", true);
+    if (text.isEmpty()) {
+        showMessage("Error", "Please enter a value.", true);
         return;
     }
     
     try {
-        heap->insert(value);
-        visualizer->updateVisualization(true);
-        insertValueEdit->clear();
-        showMessage("Success", QString("Inserted value: %1").arg(value));
+        if (currentType == INT_TYPE) {
+            bool ok;
+            int value = text.toInt(&ok);
+            
+            if (!ok) {
+                showMessage("Error", "Please enter a valid integer value.", true);
+                return;
+            }
+            
+            intHeap->insert(value);
+            visualizer->updateVisualization(true);
+            insertValueEdit->clear();
+            showMessage("Success", QString("Inserted value: %1").arg(value));
+        } else { // CHAR_TYPE
+            if (text.length() != 1) {
+                showMessage("Error", "Please enter exactly one character.", true);
+                return;
+            }
+            
+            char value = text[0].toLatin1();
+            charHeap->insert(value);
+            visualizer->updateVisualization(true);
+            insertValueEdit->clear();
+            showMessage("Success", QString("Inserted value: %1").arg(value));
+        }
     } catch (const std::exception& e) {
         showMessage("Error", e.what(), true);
     }
@@ -134,9 +178,15 @@ void MainWindow::onInsert() {
 
 void MainWindow::onExtractMin() {
     try {
-        int minValue = heap->extractMin();
-        visualizer->updateVisualization(true);
-        showMessage("Success", QString("Extracted minimum value: %1").arg(minValue));
+        if (currentType == INT_TYPE) {
+            int minValue = intHeap->extractMin();
+            visualizer->updateVisualization(true);
+            showMessage("Success", QString("Extracted minimum value: %1").arg(minValue));
+        } else { // CHAR_TYPE
+            char minValue = charHeap->extractMin();
+            visualizer->updateVisualization(true);
+            showMessage("Success", QString("Extracted minimum value: %1").arg(minValue));
+        }
     } catch (const std::exception& e) {
         showMessage("Error", e.what(), true);
     }
@@ -144,75 +194,191 @@ void MainWindow::onExtractMin() {
 
 void MainWindow::onDisplayMin() {
     try {
-        int minValue = heap->getMin();
-        visualizer->highlightMinNode();
-        int duration = HeapVisualizer::HIGHLIGHT_DURATION_MS / 1000; // Convert to seconds
-        showMessage("Minimum Value", 
-                   QString("Minimum value is: %1\n(Highlighted in red for %2 seconds)")
-                   .arg(minValue).arg(duration));
+        if (currentType == INT_TYPE) {
+            int minValue = intHeap->getMin();
+            visualizer->highlightMinNode();
+            int duration = HeapVisualizer::HIGHLIGHT_DURATION_MS / 1000;
+            showMessage("Minimum Value", 
+                       QString("Minimum value is: %1\n(Highlighted in red for %2 seconds)")
+                       .arg(minValue).arg(duration));
+        } else { // CHAR_TYPE
+            char minValue = charHeap->getMin();
+            visualizer->highlightMinNode();
+            int duration = HeapVisualizer::HIGHLIGHT_DURATION_MS / 1000;
+            showMessage("Minimum Value", 
+                       QString("Minimum value is: %1\n(Highlighted in red for %2 seconds)")
+                       .arg(minValue).arg(duration));
+        }
     } catch (const std::exception& e) {
         showMessage("Error", e.what(), true);
     }
 }
 
 void MainWindow::onDecreaseKey() {
-    bool ok1, ok2;
-    int oldValue = decreaseOldValueEdit->text().toInt(&ok1);
-    int newValue = decreaseNewValueEdit->text().toInt(&ok2);
+    QString oldText = decreaseOldValueEdit->text().trimmed();
+    QString newText = decreaseNewValueEdit->text().trimmed();
     
-    if (!ok1 || !ok2) {
-        showMessage("Error", "Please enter valid integer values.", true);
+    if (oldText.isEmpty() || newText.isEmpty()) {
+        showMessage("Error", "Please enter both old and new values.", true);
         return;
     }
     
     try {
-        heap->decreaseKey(oldValue, newValue);
-        visualizer->updateVisualization(true);
-        decreaseOldValueEdit->clear();
-        decreaseNewValueEdit->clear();
-        showMessage("Success", QString("Decreased key from %1 to %2").arg(oldValue).arg(newValue));
+        if (currentType == INT_TYPE) {
+            bool ok1, ok2;
+            int oldValue = oldText.toInt(&ok1);
+            int newValue = newText.toInt(&ok2);
+            
+            if (!ok1 || !ok2) {
+                showMessage("Error", "Please enter valid integer values.", true);
+                return;
+            }
+            
+            intHeap->decreaseKey(oldValue, newValue);
+            visualizer->updateVisualization(true);
+            decreaseOldValueEdit->clear();
+            decreaseNewValueEdit->clear();
+            showMessage("Success", QString("Decreased key from %1 to %2").arg(oldValue).arg(newValue));
+        } else { // CHAR_TYPE
+            if (oldText.length() != 1 || newText.length() != 1) {
+                showMessage("Error", "Please enter exactly one character for each field.", true);
+                return;
+            }
+            
+            char oldValue = oldText[0].toLatin1();
+            char newValue = newText[0].toLatin1();
+            
+            charHeap->decreaseKey(oldValue, newValue);
+            visualizer->updateVisualization(true);
+            decreaseOldValueEdit->clear();
+            decreaseNewValueEdit->clear();
+            showMessage("Success", QString("Decreased key from %1 to %2").arg(oldValue).arg(newValue));
+        }
     } catch (const std::exception& e) {
         showMessage("Error", e.what(), true);
     }
 }
 
 void MainWindow::onDeleteValue() {
-    bool ok;
-    int value = deleteValueEdit->text().toInt(&ok);
+    QString text = deleteValueEdit->text().trimmed();
     
-    if (!ok) {
-        showMessage("Error", "Please enter a valid integer value.", true);
+    if (text.isEmpty()) {
+        showMessage("Error", "Please enter a value.", true);
         return;
     }
     
     try {
-        heap->deleteKey(value);
-        visualizer->updateVisualization(true);
-        deleteValueEdit->clear();
-        showMessage("Success", QString("Deleted value: %1").arg(value));
+        if (currentType == INT_TYPE) {
+            bool ok;
+            int value = text.toInt(&ok);
+            
+            if (!ok) {
+                showMessage("Error", "Please enter a valid integer value.", true);
+                return;
+            }
+            
+            intHeap->deleteKey(value);
+            visualizer->updateVisualization(true);
+            deleteValueEdit->clear();
+            showMessage("Success", QString("Deleted value: %1").arg(value));
+        } else { // CHAR_TYPE
+            if (text.length() != 1) {
+                showMessage("Error", "Please enter exactly one character.", true);
+                return;
+            }
+            
+            char value = text[0].toLatin1();
+            charHeap->deleteKey(value);
+            visualizer->updateVisualization(true);
+            deleteValueEdit->clear();
+            showMessage("Success", QString("Deleted value: %1").arg(value));
+        }
     } catch (const std::exception& e) {
         showMessage("Error", e.what(), true);
     }
 }
 
 void MainWindow::onClearHeap() {
-    if (heap->isEmpty()) {
-        showMessage("Information", "Heap is already empty.");
-        return;
+    if (currentType == INT_TYPE) {
+        if (intHeap->isEmpty()) {
+            showMessage("Information", "Heap is already empty.");
+            return;
+        }
+        intHeap->clear();
+    } else { // CHAR_TYPE
+        if (charHeap->isEmpty()) {
+            showMessage("Information", "Heap is already empty.");
+            return;
+        }
+        charHeap->clear();
     }
     
-    heap->clear();
     visualizer->updateVisualization(false);
     showMessage("Success", "Heap cleared successfully!");
 }
 
 void MainWindow::onNodeRightClicked(int value) {
     try {
-        heap->deleteKey(value);
+        if (currentType == INT_TYPE) {
+            intHeap->deleteKey(value);
+        } else { // CHAR_TYPE
+            charHeap->deleteKey(static_cast<char>(value));
+        }
         visualizer->updateVisualization(true);
-        showMessage("Success", QString("Deleted node with value: %1").arg(value));
+        showMessage("Success", QString("Deleted node with value: %1").arg(
+            currentType == INT_TYPE ? QString::number(value) : QString(static_cast<char>(value))));
     } catch (const std::exception& e) {
         showMessage("Error", e.what(), true);
+    }
+}
+
+void MainWindow::onTypeChanged() {
+    DataType newType = intTypeRadio->isChecked() ? INT_TYPE : CHAR_TYPE;
+    
+    if (newType != currentType) {
+        switchHeapType(newType);
+    }
+}
+
+void MainWindow::switchHeapType(DataType newType) {
+    // Clear both heaps for clean switch
+    intHeap->clear();
+    charHeap->clear();
+    
+    currentType = newType;
+    
+    // Update visualizer to use the correct heap
+    if (currentType == INT_TYPE) {
+        visualizer->setHeap(intHeap);
+    } else {
+        visualizer->setHeap(charHeap);
+    }
+    
+    // Update placeholders
+    updatePlaceholders();
+    
+    // Clear input fields
+    insertValueEdit->clear();
+    decreaseOldValueEdit->clear();
+    decreaseNewValueEdit->clear();
+    deleteValueEdit->clear();
+    
+    showMessage("Type Changed", 
+                QString("Switched to %1 mode. Previous heap data has been cleared.")
+                .arg(currentType == INT_TYPE ? "Integer" : "Character"));
+}
+
+void MainWindow::updatePlaceholders() {
+    if (currentType == INT_TYPE) {
+        insertValueEdit->setPlaceholderText("Enter integer value");
+        decreaseOldValueEdit->setPlaceholderText("Old integer value");
+        decreaseNewValueEdit->setPlaceholderText("New integer value (smaller)");
+        deleteValueEdit->setPlaceholderText("Integer value to delete");
+    } else {
+        insertValueEdit->setPlaceholderText("Enter single character");
+        decreaseOldValueEdit->setPlaceholderText("Old character");
+        decreaseNewValueEdit->setPlaceholderText("New character (smaller)");
+        deleteValueEdit->setPlaceholderText("Character to delete");
     }
 }
 
