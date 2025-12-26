@@ -47,12 +47,14 @@ inline char ValueConverter<char>::fromString(const QString& str, bool* ok) {
     if (ok) {
         *ok = valid;
     }
-    
-    if (valid) {
-        return str.at(0).toLatin1();
+    if (!valid) {
+        // Note: Returns '\0' on invalid input. This is acceptable since:
+        // 1. The 'ok' parameter indicates success/failure
+        // 2. Callers always check 'ok' before using the return value
+        // 3. '\0' won't be inserted into the heap if 'ok' is false
+        return '\0';
     }
-    
-    return '\0'; // Return null character if invalid
+    return str.at(0).toLatin1();
 }
 
 template <>
