@@ -16,7 +16,14 @@
  * Alternative approaches (inheritance/composition) would significantly increase
  * code complexity without providing meaningful benefits for this use case.
  * 
- * If additional types are needed in the future, simply add their instantiations here.
+ * IMPORTANT: If you need to add support for additional types in the future:
+ * 1. Add the template instantiation here (e.g., "template class MainWindowT<float>;")
+ * 2. Update ValueConverter.h with specializations for the new type
+ * 3. Rebuild the project to ensure MOC processes the new instantiations
+ * 
+ * If you encounter compilation errors about missing template definitions or
+ * undefined references to Qt meta-object functions, verify that all template
+ * classes are explicitly instantiated here.
  */
 
 // Explicit template instantiations for int

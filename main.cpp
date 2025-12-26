@@ -1,4 +1,5 @@
 #include <QApplication>
+#include <memory>
 #include "MainWindow.h"
 #include "MainWindowTemplate.h"
 #include "TypeSelectionDialog.h"
@@ -9,19 +10,17 @@ int main(int argc, char* argv[]) {
     // Show type selection dialog
     TypeSelectionDialog dialog;
     if (dialog.exec() == QDialog::Accepted) {
-        QMainWindow* window = nullptr;
+        std::unique_ptr<QMainWindow> window;
         
         if (dialog.getSelectedType() == TypeSelectionDialog::INTEGER) {
-            window = new MainWindowT<int>();
+            window = std::make_unique<MainWindowT<int>>();
         } else {
-            window = new MainWindowT<char>();
+            window = std::make_unique<MainWindowT<char>>();
         }
         
         if (window) {
             window->show();
-            int result = app.exec();
-            delete window;
-            return result;
+            return app.exec();
         }
     }
     
