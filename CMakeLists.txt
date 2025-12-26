@@ -23,6 +23,7 @@ set(HEADERS
     binomial_heap.hpp
     MainWindow.h
     HeapVisualizer.h
+    ValueConverter.h
 )
 
 # Create executable

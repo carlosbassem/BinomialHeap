@@ -5,7 +5,7 @@ This document describes the implementation of dual type support (char and int) f
 
 ## Changes Made
 
-### 1. Type Selection Dialog (`TypeSelectionDialog.h/cpp`)
+### 1. Type Selection Dialog (in `MainWindow.h`)
 - Created a startup dialog that appears when the application launches
 - Users can choose between Integer or Character data types
 - Simple radio button interface with OK button
@@ -19,7 +19,7 @@ This document describes the implementation of dual type support (char and int) f
   - `getTypeName()`: Returns human-readable type name
   - `getPlaceholder()`: Returns appropriate placeholder text for input fields
 
-### 3. Templated Visualizer (`HeapVisualizerTemplate.h/cpp`)
+### 3. Templated Visualizer (in `HeapVisualizer.h`)
 - Created `NodeItemT<T>`: Template version of NodeItem that stores any type
 - Created `HeapVisualizerT<T>`: Template version of HeapVisualizer
 - Supports visualization of both int and char values
@@ -31,8 +31,10 @@ This document describes the implementation of dual type support (char and int) f
   - Minimum node highlighting
   - Context menu for deletion
 
-### 4. Templated Main Window (`MainWindowTemplate.h`)
-- Created `MainWindowT<T>`: Template version of MainWindow
+### 4. Templated Main Window (in `MainWindow.h`)
+- Created `MainWindowT<T>`: Template base class for MainWindow
+- Created `MainWindow`: int specialization (inherits from MainWindowT<int>)
+- Created `MainWindowChar`: char specialization (inherits from MainWindowT<char>)
 - Adapts all UI elements to the selected type:
   - Input field placeholders change based on type
   - Validation adapts to type requirements
@@ -49,18 +51,16 @@ This document describes the implementation of dual type support (char and int) f
 
 ### 5. Updated Main Entry Point (`main.cpp`)
 - Shows type selection dialog first
-- Creates appropriate templated window based on selection
-- Proper memory management (delete on exit)
+- Creates appropriate templated window based on selection:
+  - `MainWindow` for integer type
+  - `MainWindowChar` for character type
+- Proper memory management with smart pointers
 
-### 6. Template Instantiations (`TemplateInstantiations.cpp`)
-- Explicit instantiations of template classes for both int and char
-- Required for Qt's MOC (Meta-Object Compiler) to work with template classes
-
-### 7. Build Configuration (`CMakeLists.txt`)
+### 6. Build Configuration (`CMakeLists.txt`)
 - Added all new source and header files
 - Maintained existing build structure
 
-### 8. Documentation Updates
+### 7. Documentation Updates
 - **BUILD.md**: Updated to reflect new architecture and file structure
 - **USAGE.md**: Updated to describe startup type selection workflow
 - **README.md**: Enhanced with feature overview and technology stack
@@ -160,34 +160,22 @@ void MainWindowT<T>::onInsert() {
 - **Type Safety**: Compile-time type checking
 - **Extensibility**: Easy to add more types in the future (just add template instantiation)
 
-### Why Keep Original Files?
-- **Backward Compatibility**: Original int-only code still available
-- **Reference**: Useful for understanding the codebase evolution
-- **Gradual Migration**: Can be removed in future if desired
+## Files Structure
 
-## Files Modified
+### Core Files
+- `binomial_heap.hpp` - Binomial heap template class declaration
+- `binomial_heap_implementation.cpp` - Binomial heap implementation with int/char instantiations
+- `ValueConverter.h` - Type conversion utilities for int and char types
+- `main.cpp` - Application entry point with type selection
 
-### New Files
-- `TypeSelectionDialog.h`
-- `TypeSelectionDialog.cpp`
-- `ValueConverter.h`
-- `HeapVisualizerTemplate.h`
-- `HeapVisualizerTemplate.cpp`
-- `MainWindowTemplate.h`
-- `TemplateInstantiations.cpp`
+### UI Files
+- `MainWindow.h` - Contains TypeSelectionDialog, MainWindowT template, MainWindow (int), and MainWindowChar (char)
+- `MainWindow.cpp` - Implementation of MainWindow and MainWindowChar classes
+- `HeapVisualizer.h` - Contains NodeItemT and HeapVisualizerT template classes
+- `HeapVisualizer.cpp` - Implementation of visualization functionality
 
-### Modified Files
-- `main.cpp` - Updated to show dialog and create templated windows
-- `CMakeLists.txt` - Added new source files
-- `BUILD.md` - Updated documentation
-- `USAGE.md` - Updated usage instructions
-- `README.md` - Enhanced overview
-
-### Unchanged Files
-- `binomial_heap.hpp` - Already templated, no changes needed
-- `binomial_heap_implementation.cpp` - Already has int/char instantiations
-- `MainWindow.h/cpp` - Kept as reference (original int-only version)
-- `HeapVisualizer.h/cpp` - Kept as reference (original int-only version)
+### Build Configuration
+- `CMakeLists.txt` - CMake build configuration
 
 ## Requirements Satisfied
 
