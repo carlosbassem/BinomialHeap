@@ -1,13 +1,31 @@
 #include <QApplication>
 #include "MainWindow.h"
+#include "MainWindowTemplate.h"
+#include "TypeSelectionDialog.h"
 
 int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
     
-    MainWindow window;
-    window.show();
+    // Show type selection dialog
+    TypeSelectionDialog dialog;
+    if (dialog.exec() == QDialog::Accepted) {
+        QMainWindow* window = nullptr;
+        
+        if (dialog.getSelectedType() == TypeSelectionDialog::INTEGER) {
+            window = new MainWindowT<int>();
+        } else {
+            window = new MainWindowT<char>();
+        }
+        
+        if (window) {
+            window->show();
+            int result = app.exec();
+            delete window;
+            return result;
+        }
+    }
     
-    return app.exec();
+    return 0;
 }
 
 // Keep the old CLI code for reference but don't use it
