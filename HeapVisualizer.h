@@ -20,21 +20,14 @@
 class NodeItem : public QGraphicsEllipseItem {
 public:
     NodeItem(int value, qreal x, qreal y, qreal radius = 25);
-    NodeItem(char value, qreal x, qreal y, qreal radius = 25);
-    int getIntValue() const { return intNodeValue; }
-    char getCharValue() const { return charNodeValue; }
-    bool isIntType() const { return isInt; }
+    int getValue() const { return nodeValue; }
     void setHighlighted(bool highlight);
     
 private:
-    int intNodeValue;
-    char charNodeValue;
-    bool isInt;
+    int nodeValue;
     QGraphicsTextItem* textItem;
     QPen normalPen;
     QPen highlightPen;
-    
-    void initialize(const QString& displayText, qreal x, qreal y, qreal radius);
 };
 
 // Custom line item with arrowheads
@@ -59,7 +52,6 @@ public:
     ~HeapVisualizer();
     
     void setHeap(BinomialHeap<int>* heap);
-    void setHeap(BinomialHeap<char>* heap);
     void updateVisualization(bool animate = true);
     void highlightMinNode();
     
@@ -80,40 +72,29 @@ protected:
     void contextMenuEvent(QContextMenuEvent* event) override;
     
 private:
-    enum HeapType {
-        INT_HEAP,
-        CHAR_HEAP
-    };
-    
     struct NodePosition {
         qreal x;
         qreal y;
-        void* node;  // Pointer to either BinomialNode<int>* or BinomialNode<char>*
+        BinomialNode<int>* node;
     };
     
-    BinomialHeap<int>* intHeap;
-    BinomialHeap<char>* charHeap;
-    HeapType currentHeapType;
+    BinomialHeap<int>* binomialHeap;
     QGraphicsScene* scene;
     QTimer* highlightTimer;
     NodeItem* currentHighlightedNode;
     
-    QMap<void*, NodeItem*> nodeItemMap;
+    QMap<BinomialNode<int>*, NodeItem*> nodeItemMap;
     QList<ArrowItem*> arrowItems;
     
-    // Layout calculation (templated)
-    template<typename T>
-    void calculateLayoutT(BinomialNode<T>* root, qreal& currentX, qreal y, 
-                         QMap<void*, NodePosition>& positions);
-    template<typename T>
-    void calculateSubtreeWidthT(BinomialNode<T>* node, qreal& width);
+    // Layout calculation
+    void calculateLayout(BinomialNode<int>* root, qreal& currentX, qreal y, 
+                         QMap<BinomialNode<int>*, NodePosition>& positions);
+    void calculateSubtreeWidth(BinomialNode<int>* node, qreal& width);
     
-    // Drawing methods (templated)
-    template<typename T>
-    void drawNodeT(BinomialNode<T>* node, const NodePosition& pos, bool animate);
-    template<typename T>
-    void drawConnectionsT(BinomialNode<T>* node, 
-                        const QMap<void*, NodePosition>& positions);
+    // Drawing methods
+    void drawNode(BinomialNode<int>* node, const NodePosition& pos, bool animate);
+    void drawConnections(BinomialNode<int>* node, 
+                        const QMap<BinomialNode<int>*, NodePosition>& positions);
     void clearScene();
     
     // Animation
