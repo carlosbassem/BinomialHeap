@@ -61,16 +61,11 @@ make -j4
 BinomialHeap/
 ├── binomial_heap.hpp              # Binomial heap template class declaration
 ├── binomial_heap_implementation.cpp # Binomial heap implementation
-├── HeapVisualizer.h               # Original visualization widget (int only)
-├── HeapVisualizer.cpp             # Original visualization implementation
-├── HeapVisualizerTemplate.h       # Templated visualization widget
-├── HeapVisualizerTemplate.cpp     # Templated visualization implementation
-├── MainWindow.h                   # Original main window (int only)
-├── MainWindow.cpp                 # Original main window implementation
-├── MainWindowTemplate.h           # Templated main window for char/int support
-├── TypeSelectionDialog.h          # Type selection dialog header
-├── TypeSelectionDialog.cpp        # Type selection dialog implementation
-├── ValueConverter.h               # Utility for type conversions
+├── HeapVisualizer.h               # Templated visualization widget
+├── HeapVisualizer.cpp             # Visualization implementation
+├── MainWindow.h                   # Main window with TypeSelectionDialog and templated UI
+├── MainWindow.cpp                 # Main window implementation for int and char
+├── ValueConverter.h               # Utility for type conversions (int and char)
 ├── main.cpp                       # Application entry point
 ├── CMakeLists.txt                 # CMake build configuration
 └── BUILD.md                       # This file
@@ -143,19 +138,18 @@ export LD_LIBRARY_PATH=/path/to/qt6/lib:$LD_LIBRARY_PATH
 ### Adding New Features
 The code is organized into several main components:
 1. **Heap Logic** (`binomial_heap.hpp`, `binomial_heap_implementation.cpp`)
-2. **Type Selection** (`TypeSelectionDialog.h`, `TypeSelectionDialog.cpp`)
-3. **Templated Visualization** (`HeapVisualizerTemplate.h`, `HeapVisualizerTemplate.cpp`)
-4. **Templated UI Controls** (`MainWindowTemplate.h`)
+2. **Type Selection** (`TypeSelectionDialog` class in `MainWindow.h`)
+3. **Templated Visualization** (`HeapVisualizerT` template in `HeapVisualizer.h`)
+4. **Templated UI Controls** (`MainWindowT` template in `MainWindow.h`)
 5. **Value Conversion** (`ValueConverter.h`)
-6. **Legacy Components** (Original `MainWindow.h/cpp`, `HeapVisualizer.h/cpp` for reference)
 
 ### Modifying Visualization
-To change node colors, edit `NodeItemT::NodeItemT()` in `HeapVisualizerTemplate.h`:
+To change node colors, edit `NodeItemT::NodeItemT()` in `HeapVisualizer.h`:
 ```cpp
 setBrush(QBrush(QColor(173, 216, 230))); // Change RGB values
 ```
 
-To adjust layout spacing, modify constants in `HeapVisualizerT::calculateLayout()`:
+To adjust layout spacing, modify constants in `HeapVisualizerT::calculateLayout()` in `HeapVisualizer.h`:
 ```cpp
 qreal childY = y + 120;  // Vertical spacing
 currentX += 100;          // Horizontal spacing between trees

@@ -47,11 +47,11 @@ The selected type determines what kind of data you can insert and manipulate in 
 ## Project Structure
 
 - `binomial_heap.hpp/cpp`: Core binomial heap data structure (template-based)
-- `MainWindowTemplate.h`: Templated main window for type-agnostic UI
-- `HeapVisualizerTemplate.h/cpp`: Templated visualization widget
-- `TypeSelectionDialog.h/cpp`: Startup type selection dialog
-- `ValueConverter.h`: Type conversion utilities
-- Legacy files (`MainWindow.*`, `HeapVisualizer.*`): Original int-only implementation
+- `MainWindow.h/cpp`: Main window with type-agnostic UI supporting both int and char types
+- `HeapVisualizer.h/cpp`: Templated visualization widget for rendering the heap
+- `TypeSelectionDialog`: Startup type selection dialog (defined in MainWindow.h)
+- `ValueConverter.h`: Type conversion utilities for int and char types
+- `main.cpp`: Application entry point with type selection
 
 ## License
 
