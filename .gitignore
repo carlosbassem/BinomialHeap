@@ -54,3 +54,6 @@ Makefile
 
 # CodeQL
 _codeql_*/
+test_types.cpp
+test_types
+demo_script.md

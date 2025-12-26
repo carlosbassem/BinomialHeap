@@ -278,12 +278,7 @@ template<typename T>
 void HeapVisualizer::drawNodeT(BinomialNode<T>* node, const NodePosition& pos, bool animate) {
     if (!node) return;
     
-    NodeItem* item;
-    if constexpr (std::is_same_v<T, int>) {
-        item = new NodeItem(node->getValue(), pos.x, pos.y);
-    } else {
-        item = new NodeItem(node->getValue(), pos.x, pos.y);
-    }
+    NodeItem* item = new NodeItem(node->getValue(), pos.x, pos.y);
     scene->addItem(item);
     nodeItemMap[node] = item;
     
