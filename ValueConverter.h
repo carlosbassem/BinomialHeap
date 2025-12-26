@@ -43,11 +43,11 @@ inline QString ValueConverter<char>::toString(char value) {
 
 template <>
 inline char ValueConverter<char>::fromString(const QString& str, bool* ok) {
+    bool valid = (str.length() == 1);
     if (ok) {
-        *ok = (str.length() == 1);
+        *ok = valid;
     }
-    if (str.length() != 1) {
-        if (ok) *ok = false;
+    if (!valid) {
         return '\0';
     }
     return str.at(0).toLatin1();

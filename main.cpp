@@ -28,7 +28,18 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-// Keep the old CLI code for reference but don't use it
+/* 
+ * Legacy CLI Code - Preserved for Reference
+ * 
+ * The following code implements a command-line interface (CLI) for the binomial heap
+ * with complexity testing capabilities. It has been disabled (#if 0) in favor of the
+ * new Qt6-based GUI, but is kept here for:
+ * - Reference and understanding of the original implementation
+ * - Potential future CLI mode
+ * - Complexity testing functions that may be useful
+ * 
+ * To enable this code, change #if 0 to #if 1 below and comment out the GUI main above.
+ */
 #if 0
 #include <iostream>
 #include "binomial_heap.hpp"
