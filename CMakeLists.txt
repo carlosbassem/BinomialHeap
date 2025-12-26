@@ -17,12 +17,19 @@ set(SOURCES
     binomial_heap_implementation.cpp
     MainWindow.cpp
     HeapVisualizer.cpp
+    TypeSelectionDialog.cpp
+    HeapVisualizerTemplate.cpp
+    TemplateInstantiations.cpp
 )
 
 set(HEADERS
     binomial_heap.hpp
     MainWindow.h
     HeapVisualizer.h
+    TypeSelectionDialog.h
+    MainWindowTemplate.h
+    HeapVisualizerTemplate.h
+    ValueConverter.h
 )
 
 # Create executable

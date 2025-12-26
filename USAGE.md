@@ -6,13 +6,14 @@ The Binomial Heap Visualizer provides an interactive graphical interface for vis
 ## Data Type Selection
 
 ### Choosing Your Data Type
-At the top of the control panel, you'll find radio buttons to select the data type:
+When you launch the application, a dialog box appears asking you to choose between:
 
 - **Integer**: Work with numeric values (e.g., 15, -3, 100)
 - **Character**: Work with single alphabetic characters (e.g., 'a', 'z', 'm')
 
 **Important Notes**:
-- Switching data types automatically clears both heaps
+- The data type is selected once at startup
+- You cannot switch types during runtime - restart the application to change types
 - All operations work the same way regardless of selected type
 - Input validation adapts to the selected type
 
@@ -27,20 +28,21 @@ The application window consists of two main areas:
    - Multiple binomial trees arranged horizontally
 
 2. **Control Panel** (Right): Contains operation buttons and input fields
+   - The panel title shows the selected data type (e.g., "Heap Operations (Integer)")
+   - Input fields adapt to the selected type
 
 ## Operations
 
 ### Insert Value
-**Purpose**: Add a new value to the heap (integer or character based on selected type)
+**Purpose**: Add a new value to the heap (integer or character based on selected type at startup)
 
 **Steps**:
-1. Select your desired data type (Integer or Character)
-2. Enter a value in the "Insert Value" field:
+1. Enter a value in the "Insert Value" field:
    - **Integer mode**: Enter any integer value (e.g., 15, -5, 100)
    - **Character mode**: Enter exactly one character (e.g., a, z, m)
-3. Click the "Insert" button
-4. A success message will appear
-5. The visualization updates automatically
+2. Click the "Insert" button
+3. A success message will appear
+4. The visualization updates automatically
 
 **Examples**: 
 - Integer mode: Insert values 15, 8, 25, 3 to build a heap

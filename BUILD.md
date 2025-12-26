@@ -61,10 +61,16 @@ make -j4
 BinomialHeap/
 ├── binomial_heap.hpp              # Binomial heap template class declaration
 ├── binomial_heap_implementation.cpp # Binomial heap implementation
-├── HeapVisualizer.h               # Visualization widget header
-├── HeapVisualizer.cpp             # Visualization widget implementation
-├── MainWindow.h                   # Main application window header
-├── MainWindow.cpp                 # Main application window implementation
+├── HeapVisualizer.h               # Original visualization widget (int only)
+├── HeapVisualizer.cpp             # Original visualization implementation
+├── HeapVisualizerTemplate.h       # Templated visualization widget
+├── HeapVisualizerTemplate.cpp     # Templated visualization implementation
+├── MainWindow.h                   # Original main window (int only)
+├── MainWindow.cpp                 # Original main window implementation
+├── MainWindowTemplate.h           # Templated main window for char/int support
+├── TypeSelectionDialog.h          # Type selection dialog header
+├── TypeSelectionDialog.cpp        # Type selection dialog implementation
+├── ValueConverter.h               # Utility for type conversions
 ├── main.cpp                       # Application entry point
 ├── CMakeLists.txt                 # CMake build configuration
 └── BUILD.md                       # This file
@@ -73,9 +79,9 @@ BinomialHeap/
 ## Features
 
 ### Data Types
-- **Integer Mode**: Work with numeric values
-- **Character Mode**: Work with single alphabetic characters
-- **Type Selection**: Radio buttons for seamless switching between modes
+- **Integer Mode**: Work with numeric values (int)
+- **Character Mode**: Work with single alphabetic characters (char)
+- **Type Selection**: Choose type at startup via dialog box
 
 ### Visualization
 - **Node Representation**: Light blue circles with integer values
@@ -96,19 +102,21 @@ BinomialHeap/
 ## Usage Example
 
 1. Launch the application
-2. Select data type (Integer or Character) using radio buttons
-3. **For Integer mode:**
+2. A dialog box appears asking you to select the data type (Integer or Character)
+3. Choose your desired type and click OK
+4. **For Integer mode:**
    - Enter a value in the "Insert Value" field (e.g., 15)
    - Click "Insert" button
    - Repeat to add more values
-4. **For Character mode:**
-   - Select the "Character" radio button
-   - Enter a single character (e.g., 'a')
+5. **For Character mode:**
+   - Enter a single character in the "Insert Value" field (e.g., 'a')
    - Click "Insert" button
    - Repeat to add more characters
-5. Click "Display Min" to highlight the minimum value node
-6. Right-click any node to delete it via context menu
-7. Use other operations as needed
+6. Click "Display Min" to highlight the minimum value node
+7. Right-click any node to delete it via context menu
+8. Use other operations as needed
+
+Note: The data type is chosen at startup and cannot be changed without restarting the application.
 
 ## Troubleshooting
 
@@ -133,18 +141,21 @@ export LD_LIBRARY_PATH=/path/to/qt6/lib:$LD_LIBRARY_PATH
 ## Development
 
 ### Adding New Features
-The code is organized into three main components:
+The code is organized into several main components:
 1. **Heap Logic** (`binomial_heap.hpp`, `binomial_heap_implementation.cpp`)
-2. **Visualization** (`HeapVisualizer.h`, `HeapVisualizer.cpp`)
-3. **UI Controls** (`MainWindow.h`, `MainWindow.cpp`)
+2. **Type Selection** (`TypeSelectionDialog.h`, `TypeSelectionDialog.cpp`)
+3. **Templated Visualization** (`HeapVisualizerTemplate.h`, `HeapVisualizerTemplate.cpp`)
+4. **Templated UI Controls** (`MainWindowTemplate.h`)
+5. **Value Conversion** (`ValueConverter.h`)
+6. **Legacy Components** (Original `MainWindow.h/cpp`, `HeapVisualizer.h/cpp` for reference)
 
 ### Modifying Visualization
-To change node colors, edit `NodeItem::NodeItem()` in `HeapVisualizer.cpp`:
+To change node colors, edit `NodeItemT::NodeItemT()` in `HeapVisualizerTemplate.h`:
 ```cpp
 setBrush(QBrush(QColor(173, 216, 230))); // Change RGB values
 ```
 
-To adjust layout spacing, modify constants in `HeapVisualizer::calculateLayout()`:
+To adjust layout spacing, modify constants in `HeapVisualizerT::calculateLayout()`:
 ```cpp
 qreal childY = y + 120;  // Vertical spacing
 currentX += 100;          // Horizontal spacing between trees

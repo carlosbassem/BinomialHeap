@@ -1,16 +1,44 @@
 #include <QApplication>
+#include <memory>
 #include "MainWindow.h"
+#include "MainWindowTemplate.h"
+#include "TypeSelectionDialog.h"
 
 int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
     
-    MainWindow window;
-    window.show();
+    // Show type selection dialog
+    TypeSelectionDialog dialog;
+    if (dialog.exec() == QDialog::Accepted) {
+        std::unique_ptr<QMainWindow> window;
+        
+        if (dialog.getSelectedType() == TypeSelectionDialog::INTEGER) {
+            window = std::make_unique<MainWindowT<int>>();
+        } else {
+            window = std::make_unique<MainWindowT<char>>();
+        }
+        
+        if (window) {
+            window->show();
+            return app.exec();
+        }
+    }
     
-    return app.exec();
+    return 0;
 }
 
-// Keep the old CLI code for reference but don't use it
+/* 
+ * Legacy CLI Code - Preserved for Reference
+ * 
+ * The following code implements a command-line interface (CLI) for the binomial heap
+ * with complexity testing capabilities. It has been disabled (#if 0) in favor of the
+ * new Qt6-based GUI, but is kept here for:
+ * - Reference and understanding of the original implementation
+ * - Potential future CLI mode
+ * - Complexity testing functions that may be useful
+ * 
+ * To enable this code, change #if 0 to #if 1 below and comment out the GUI main above.
+ */
 #if 0
 #include <iostream>
 #include "binomial_heap.hpp"
