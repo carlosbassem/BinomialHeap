@@ -72,6 +72,11 @@ BinomialHeap/
 
 ## Features
 
+### Data Types
+- **Integer Mode**: Work with numeric values
+- **Character Mode**: Work with single alphabetic characters
+- **Type Selection**: Radio buttons for seamless switching between modes
+
 ### Visualization
 - **Node Representation**: Light blue circles with integer values
 - **Parent-Child Relationships**: Double-headed black arrows
@@ -91,9 +96,16 @@ BinomialHeap/
 ## Usage Example
 
 1. Launch the application
-2. Enter a value in the "Insert Value" field (e.g., 15)
-3. Click "Insert" button
-4. Repeat to add more values
+2. Select data type (Integer or Character) using radio buttons
+3. **For Integer mode:**
+   - Enter a value in the "Insert Value" field (e.g., 15)
+   - Click "Insert" button
+   - Repeat to add more values
+4. **For Character mode:**
+   - Select the "Character" radio button
+   - Enter a single character (e.g., 'a')
+   - Click "Insert" button
+   - Repeat to add more characters
 5. Click "Display Min" to highlight the minimum value node
 6. Right-click any node to delete it via context menu
 7. Use other operations as needed

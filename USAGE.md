@@ -1,7 +1,20 @@
 # Binomial Heap Visualizer - Usage Guide
 
 ## Overview
-The Binomial Heap Visualizer provides an interactive graphical interface for visualizing and manipulating a Min Binomial Heap data structure.
+The Binomial Heap Visualizer provides an interactive graphical interface for visualizing and manipulating a Min Binomial Heap data structure. It supports both **Integer** and **Character** data types, allowing you to work with numeric or alphabetic values.
+
+## Data Type Selection
+
+### Choosing Your Data Type
+At the top of the control panel, you'll find radio buttons to select the data type:
+
+- **Integer**: Work with numeric values (e.g., 15, -3, 100)
+- **Character**: Work with single alphabetic characters (e.g., 'a', 'z', 'm')
+
+**Important Notes**:
+- Switching data types automatically clears both heaps
+- All operations work the same way regardless of selected type
+- Input validation adapts to the selected type
 
 ## Interface Layout
 
@@ -18,15 +31,20 @@ The application window consists of two main areas:
 ## Operations
 
 ### Insert Value
-**Purpose**: Add a new integer value to the heap
+**Purpose**: Add a new value to the heap (integer or character based on selected type)
 
 **Steps**:
-1. Enter an integer value in the "Insert Value" field
-2. Click the "Insert" button
-3. A success message will appear
-4. The visualization updates automatically
+1. Select your desired data type (Integer or Character)
+2. Enter a value in the "Insert Value" field:
+   - **Integer mode**: Enter any integer value (e.g., 15, -5, 100)
+   - **Character mode**: Enter exactly one character (e.g., a, z, m)
+3. Click the "Insert" button
+4. A success message will appear
+5. The visualization updates automatically
 
-**Example**: Insert values 15, 8, 25, 3 to build a heap
+**Examples**: 
+- Integer mode: Insert values 15, 8, 25, 3 to build a heap
+- Character mode: Insert characters 'm', 'a', 'z', 'c' to build a heap
 
 ### Extract Min
 **Purpose**: Remove and return the minimum value from the heap
@@ -54,17 +72,23 @@ The application window consists of two main areas:
 
 **Steps**:
 1. Enter the current value in "Old value" field
+   - **Integer mode**: Enter the current integer value
+   - **Character mode**: Enter the current character
 2. Enter the new smaller value in "New value" field
+   - **Integer mode**: Enter a smaller integer
+   - **Character mode**: Enter a character that comes earlier alphabetically
 3. Click the "Decrease Key" button
 4. The heap restructures to maintain the min-heap property
 5. Visualization updates showing the new structure
 
 **Requirements**:
 - The old value must exist in the heap
-- The new value must be smaller than the old value
+- The new value must be smaller than the old value (numerically for int, alphabetically for char)
 - Violating these shows an error message
 
-**Example**: If heap contains 15, decrease it to 5
+**Examples**: 
+- Integer mode: If heap contains 15, decrease it to 5
+- Character mode: If heap contains 'm', decrease it to 'a'
 
 ### Delete Value
 **Purpose**: Remove a specific value from the heap
@@ -164,11 +188,29 @@ After inserting several values, you'll see multiple binomial trees of different 
 
 ## Common Error Messages
 
-- **"Please enter a valid integer value"**: Input field contains non-integer data
+- **"Please enter a valid integer value"**: Input field contains non-integer data (Integer mode)
+- **"Please enter exactly one character"**: Input contains more than one character (Character mode)
 - **"Cannot get min from empty heap"**: Attempted operation on empty heap
 - **"Key not found in heap"**: Specified value doesn't exist for decrease/delete
 - **"New value must be smaller than current value"**: Decrease key constraint violated
 - **"Heap is already empty"**: Attempted to clear an already empty heap
+
+## Working with Characters
+
+When in **Character mode**:
+- Single characters are compared alphabetically (ASCII order)
+- 'a' < 'b' < 'c' ... < 'z' (lowercase)
+- 'A' < 'B' < 'C' ... < 'Z' (uppercase)
+- Numbers and special characters also work based on ASCII values
+- The minimum is the character with the smallest ASCII value
+
+**Example Character Heap**:
+```
+Insert: m, a, z, c, k
+Minimum: a (smallest alphabetically)
+After extracting 'a', next minimum: c
+Decrease 'm' to 'b': new minimum is 'b'
+```
 
 ## Technical Notes
 
