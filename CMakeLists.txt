@@ -18,8 +18,6 @@ set(SOURCES
     MainWindow.cpp
     HeapVisualizer.cpp
     TypeSelectionDialog.cpp
-    HeapVisualizerTemplate.cpp
-    TemplateInstantiations.cpp
 )
 
 set(HEADERS
@@ -27,8 +25,6 @@ set(HEADERS
     MainWindow.h
     HeapVisualizer.h
     TypeSelectionDialog.h
-    MainWindowTemplate.h
-    HeapVisualizerTemplate.h
     ValueConverter.h
 )
 
