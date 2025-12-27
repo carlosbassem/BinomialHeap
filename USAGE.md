@@ -114,6 +114,32 @@ The application window consists of two main areas:
 3. The node is deleted immediately
 4. Heap restructures and updates
 
+### Left-Click on Root Nodes (NEW!)
+**Purpose**: Duplicate an entire binomial tree and merge it back into the heap
+
+**Steps**:
+1. Left-click on a **root node** in the visualization (top-level nodes labeled with B0, B1, B2, etc.)
+2. A context menu appears with "Duplicate Root Tree" option
+3. Select "Duplicate Root Tree"
+4. The entire tree rooted at that node is copied and merged back into the heap
+5. Heap size increases (doubles if you only have one root tree)
+6. Visualization updates showing the merged structure
+
+**Important Notes**:
+- This option **only appears for root nodes** (the top nodes of each binomial tree)
+- Left-clicking on non-root nodes (children) has no effect
+- The feature uses the existing copy constructor and union operations
+- All binomial heap properties are maintained after the merge
+
+**Example**:
+```
+Initial heap: B2 tree with 4 nodes (values 3, 5, 8, 10)
+After duplicating root [3]: B3 tree with 8 nodes (original + duplicate)
+Heap size: 4 → 8 nodes
+```
+
+For detailed information about this feature, see [DUPLICATE_ROOT_FEATURE.md](DUPLICATE_ROOT_FEATURE.md).
+
 ### Clear All
 **Purpose**: Empty the entire heap
 
@@ -128,6 +154,15 @@ The application window consists of two main areas:
 ### Node Colors
 - **Light Blue** (RGB: 173, 216, 230): Normal node state
 - **Light Blue with Red Border**: Minimum node when "Display Min" is active
+
+### Node Types
+- **Root Nodes**: Top-level nodes of each binomial tree
+  - Labeled with "B0", "B1", "B2", etc. above them
+  - Connected horizontally with single-headed arrows
+  - Can be duplicated using left-click context menu (NEW!)
+- **Non-Root Nodes**: Children within a tree
+  - Connected vertically below their parents
+  - Part of the tree structure
 
 ### Arrows
 - **Double-Headed Arrows (↔)**: Indicate parent-child relationships

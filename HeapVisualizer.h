@@ -16,6 +16,7 @@
 #include <QBrush>
 #include <QPainter>
 #include <QContextMenuEvent>
+#include <QMouseEvent>
 #include <QAction>
 #include <cmath>
 #include "binomial_heap.hpp"
@@ -76,9 +77,11 @@ public:
     
 protected:
     void contextMenuEvent(QContextMenuEvent* event) override;
+    void mousePressEvent(QMouseEvent* event) override;
     
     // Virtual signal-like method for derived classes to override
     virtual void onNodeRightClicked(T value) = 0;
+    virtual void onRootNodeLeftClicked(T value) = 0;
     
 private:
     struct NodePosition {
@@ -111,6 +114,7 @@ private:
     
     // Helper
     NodeItemT<T>* findNodeItemAt(QPointF scenePos);
+    bool isRootNode(BinomialNode<T>* node);
 };
 
 // Non-template wrapper classes with Q_OBJECT for Qt MOC
@@ -122,10 +126,14 @@ public:
     
 signals:
     void nodeRightClicked(int value);
+    void rootNodeLeftClicked(int value);
     
 protected:
     void onNodeRightClicked(int value) override {
         emit nodeRightClicked(value);
+    }
+    void onRootNodeLeftClicked(int value) override {
+        emit rootNodeLeftClicked(value);
     }
 };
 
@@ -137,10 +145,14 @@ public:
     
 signals:
     void nodeRightClicked(char value);
+    void rootNodeLeftClicked(char value);
     
 protected:
     void onNodeRightClicked(char value) override {
         emit nodeRightClicked(value);
+    }
+    void onRootNodeLeftClicked(char value) override {
+        emit rootNodeLeftClicked(value);
     }
 };
 
@@ -527,6 +539,59 @@ void HeapVisualizerT<T>::contextMenuEvent(QContextMenuEvent* event) {
     } else {
         QGraphicsView::contextMenuEvent(event);
     }
+}
+
+template <typename T>
+void HeapVisualizerT<T>::mousePressEvent(QMouseEvent* event) {
+    if (event->button() == Qt::LeftButton) {
+        QPointF scenePos = mapToScene(event->pos());
+        NodeItemT<T>* nodeItem = findNodeItemAt(scenePos);
+        
+        if (nodeItem) {
+            // Find the corresponding BinomialNode
+            BinomialNode<T>* clickedNode = nullptr;
+            for (auto it = nodeItemMap.begin(); it != nodeItemMap.end(); ++it) {
+                if (it.value() == nodeItem) {
+                    clickedNode = it.key();
+                    break;
+                }
+            }
+            
+            // Check if it's a root node
+            if (clickedNode && isRootNode(clickedNode)) {
+                // Show context menu for duplicating
+                QMenu menu(this);
+                QAction* duplicateAction = menu.addAction("Duplicate Root Tree");
+                
+                QAction* selected = menu.exec(mapToGlobal(event->pos()));
+                if (selected == duplicateAction) {
+                    onRootNodeLeftClicked(nodeItem->getValue());
+                }
+                return;
+            }
+        }
+    }
+    
+    // Call base implementation for other cases
+    QGraphicsView::mousePressEvent(event);
+}
+
+template <typename T>
+bool HeapVisualizerT<T>::isRootNode(BinomialNode<T>* node) {
+    if (!node || !binomialHeap) return false;
+    
+    // A root node is one that appears in the sibling list starting from head
+    BinomialNode<T>* head = binomialHeap->getHead();
+    BinomialNode<T>* current = head;
+    
+    while (current) {
+        if (current == node) {
+            return true;
+        }
+        current = current->getSibling();
+    }
+    
+    return false;
 }
 
 // Type alias for backwards compatibility
