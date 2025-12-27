@@ -9,6 +9,7 @@ A Qt6-based interactive visualization tool for Binomial Heaps that supports both
 - ⚡ **Complete Operations**: Insert, Extract Min, Decrease Key, Delete, and more
 - 🖱️ **Context Menu**: Right-click any node to delete it
 - 🔴 **Minimum Highlighting**: Visual indication of the minimum value node
+- ✨ **Duplicate Root Tree**: Left-click on root nodes to duplicate and merge entire trees back into the heap
 
 ## Quick Start
 
@@ -36,6 +37,7 @@ The selected type determines what kind of data you can insert and manipulate in 
 - **Decrease Key**: Reduce a value in the heap
 - **Delete Value**: Remove a specific value
 - **Clear All**: Empty the entire heap
+- **Duplicate Root Tree**: Left-click on any root node to duplicate its entire tree and merge it back into the heap (new!)
 
 ## Technology Stack
 
