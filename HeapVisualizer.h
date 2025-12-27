@@ -563,7 +563,7 @@ void HeapVisualizerT<T>::mousePressEvent(QMouseEvent* event) {
                 QMenu menu(this);
                 QAction* duplicateAction = menu.addAction("Duplicate Root Tree");
                 
-                QAction* selected = menu.exec(event->globalPos());
+                QAction* selected = menu.exec(mapToGlobal(event->pos()));
                 if (selected == duplicateAction) {
                     onRootNodeLeftClicked(nodeItem->getValue());
                 }
