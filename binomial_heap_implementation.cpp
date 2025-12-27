@@ -404,13 +404,14 @@ void BinomialHeap<B>::duplicateAndMergeRootTree(B rootValue) {
 	
 	// Copy the entire tree rooted at targetRoot
 	// Temporarily save the sibling pointer to avoid copying it
+	// This is safe because we restore it immediately after copying
 	BinomialNode<B>* originalSibling = targetRoot->sibling;
 	targetRoot->sibling = nullptr;
 	
 	// Create a standalone copy (not connected to any other roots)
 	BinomialNode<B>* copiedTree = copyHeap(targetRoot, nullptr);
 	
-	// Restore the original sibling pointer
+	// Restore the original sibling pointer immediately
 	targetRoot->sibling = originalSibling;
 	
 	// Merge the copied tree back into the heap using union
