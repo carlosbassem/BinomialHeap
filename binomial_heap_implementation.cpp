@@ -383,6 +383,32 @@ void BinomialHeap<B>::displayHeap(const BinomialHeap<B>* heap) {
 	cout << "Size of heap: " << size()<< endl;
 }
 
+template <typename B>
+void BinomialHeap<B>::duplicateAndMergeRootTree(B rootValue) {
+	// Find the root node with the given value
+	BinomialNode<B>* currentRoot = head;
+	BinomialNode<B>* targetRoot = nullptr;
+	
+	// Search through the root nodes (nodes at the head level)
+	while (currentRoot) {
+		if (currentRoot->value == rootValue) {
+			targetRoot = currentRoot;
+			break;
+		}
+		currentRoot = currentRoot->sibling;
+	}
+	
+	if (!targetRoot) {
+		throw std::runtime_error("Root node with specified value not found");
+	}
+	
+	// Copy the entire tree rooted at targetRoot
+	// Create a standalone copy (not connected to any other roots)
+	BinomialNode<B>* copiedTree = copyHeap(targetRoot, nullptr);
+	
+	// Merge the copied tree back into the heap using union
+	head = unionHeap(head, copiedTree);
+}
 
 
 template class BinomialNode<int>;

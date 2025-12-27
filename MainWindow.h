@@ -56,6 +56,7 @@ protected:
     virtual void onDeleteValue() = 0;
     virtual void onClearHeap() = 0;
     virtual void onNodeRightClicked(T value) = 0;
+    virtual void onRootNodeLeftClicked(T value) = 0;
     
     // UI Components
     HeapVisualizerT<T>* visualizer;
@@ -97,6 +98,7 @@ private slots:
     void onDeleteValue() override;
     void onClearHeap() override;
     void onNodeRightClicked(int value) override;
+    void onRootNodeLeftClicked(int value) override;
 };
 
 class MainWindowChar : public MainWindowT<char> {
@@ -113,6 +115,7 @@ private slots:
     void onDeleteValue() override;
     void onClearHeap() override;
     void onNodeRightClicked(char value) override;
+    void onRootNodeLeftClicked(char value) override;
 };
 
 // Template implementation

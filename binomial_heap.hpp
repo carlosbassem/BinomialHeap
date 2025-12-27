@@ -38,6 +38,7 @@ public:
 		other.head = nullptr; // avoid double free
 	}
 	BinomialNode<B>* copyHeap(BinomialNode<B>* node, BinomialNode<B>* parent);
+	void duplicateAndMergeRootTree(B rootValue);
 	
 	// Public getter for visualization
 	BinomialNode<B>* getHead() const { return head; }

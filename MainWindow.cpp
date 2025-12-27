@@ -77,6 +77,8 @@ MainWindow::MainWindow(QWidget* parent) : MainWindowT<int>(parent) {
     HeapVisualizer* typedVisualizer = static_cast<HeapVisualizer*>(visualizer);
     QObject::connect(typedVisualizer, &HeapVisualizer::nodeRightClicked,
             this, &MainWindow::onNodeRightClicked);
+    QObject::connect(typedVisualizer, &HeapVisualizer::rootNodeLeftClicked,
+            this, &MainWindow::onRootNodeLeftClicked);
 }
 
 void MainWindow::onInsert() {
@@ -176,6 +178,17 @@ void MainWindow::onNodeRightClicked(int value) {
     }
 }
 
+void MainWindow::onRootNodeLeftClicked(int value) {
+    try {
+        heap->duplicateAndMergeRootTree(value);
+        visualizer->updateVisualization(true);
+        showMessage("Success", QString("Duplicated root tree with value %1 and merged into heap")
+                   .arg(ValueConverter<int>::toString(value)));
+    } catch (const std::exception& e) {
+        showMessage("Error", e.what(), true);
+    }
+}
+
 // MainWindowChar (char specialization) implementation
 MainWindowChar::MainWindowChar(QWidget* parent) : MainWindowT<char>(parent) {
     // Connect signals
@@ -190,6 +203,8 @@ MainWindowChar::MainWindowChar(QWidget* parent) : MainWindowT<char>(parent) {
     HeapVisualizerChar* typedVisualizer = static_cast<HeapVisualizerChar*>(visualizer);
     QObject::connect(typedVisualizer, &HeapVisualizerChar::nodeRightClicked,
             this, &MainWindowChar::onNodeRightClicked);
+    QObject::connect(typedVisualizer, &HeapVisualizerChar::rootNodeLeftClicked,
+            this, &MainWindowChar::onRootNodeLeftClicked);
 }
 
 void MainWindowChar::onInsert() {
@@ -284,6 +299,17 @@ void MainWindowChar::onNodeRightClicked(char value) {
     try {
         heap->deleteKey(value);
         visualizer->updateVisualization(true);
+    } catch (const std::exception& e) {
+        showMessage("Error", e.what(), true);
+    }
+}
+
+void MainWindowChar::onRootNodeLeftClicked(char value) {
+    try {
+        heap->duplicateAndMergeRootTree(value);
+        visualizer->updateVisualization(true);
+        showMessage("Success", QString("Duplicated root tree with value %1 and merged into heap")
+                   .arg(ValueConverter<char>::toString(value)));
     } catch (const std::exception& e) {
         showMessage("Error", e.what(), true);
     }
